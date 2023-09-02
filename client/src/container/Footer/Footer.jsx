@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-
+import React, { useState, useRef } from 'react';
 import { images } from '../../contants';
 import { AppWrap, MotionWrap } from '../../wrapper';
 import { client } from '../../client';
 import './Footer.scss';
+import emailjs from '@emailjs/browser';
 
 const Footer = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -11,6 +11,9 @@ const Footer = () => {
   const [loading, setLoading] = useState(false);
 
   const { username, email, message } = formData;
+
+  // Configure EmailJS with your User ID and service ID
+  emailjs.init('LKuJAf1-mkY_eseL8');
 
   const handleChangeInput = (e) => {
     const { name, value } = e.target;
@@ -31,7 +34,19 @@ const Footer = () => {
       .then(() => {
         setLoading(false);
         setIsFormSubmitted(true);
+        console.log(contact);
       })
+    // Send email using EmailJS
+    emailjs.send('service_rki3slp', 'template_so1oyqa', contact)
+      .then((response) => {
+        setLoading(false);
+        setIsFormSubmitted(true);
+        console.log(contact);
+        console.log('Email sent:', response);
+
+        // You can add code here to handle the success and reset the form, if needed.
+      })
+
       .catch((err) => console.log(err));
   };
 
@@ -49,13 +64,17 @@ const Footer = () => {
           <a href="tel:+91 9262685542" className="p-text">+91 9262685542</a>
         </div>
       </div>
+
+      {/*<Email/>*/}
+
       {!isFormSubmitted ? (
+
         <div className="app__footer-form app__flex">
           <div className="app__flex">
-            <input className="p-text" type="text" placeholder="Your Name" name="username" value={username} onChange={handleChangeInput} />
+            <input className="p-text" type="text" placeholder="Your Name" name="username" value={username} onChange={handleChangeInput} required />
           </div>
           <div className="app__flex">
-            <input className="p-text" type="email" placeholder="Your Email" name="email" value={email} onChange={handleChangeInput} />
+            <input className="p-text" type="email" placeholder="Your Email" name="email" value={email} onChange={handleChangeInput} required />
           </div>
           <div>
             <textarea
@@ -64,10 +83,12 @@ const Footer = () => {
               value={message}
               name="message"
               onChange={handleChangeInput}
+              required
             />
           </div>
           <button type="button" className="p-text" onClick={handleSubmit}>{!loading ? 'Send Message' : 'Sending...'}</button>
         </div>
+
       ) : (
         <div>
           <h3 className="head-text">
